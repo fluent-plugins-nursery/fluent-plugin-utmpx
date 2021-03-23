@@ -20,8 +20,43 @@ module Fluent
     class UtmpxParser < Fluent::Plugin::Parser
       Fluent::Plugin.register_parser("utmpx", self)
 
-      def parse(text)
-        yield time, record
+      def configure(conf)
+        super
+        @utmpx_parser = Linux::Utmpx::UtmpxParser.new
+      end
+
+      def parser_type
+        :binary
+      end
+
+      def parse(data)
+        obj = BinData::DelayedIO.new(type: UtmpxParser)
+        obj.read(data) do
+          entry = obj.read_now!
+          time, record = parse_entry(entry)
+          yield time, record
+        end
+      end
+
+      def parse_io(io, &block)
+        while !io.eof?
+          entry = @utmpx_parser.read(io)
+          time, record = parse_entry(entry)
+          yield time, record
+        end
+      end
+
+      private
+
+      def parse_entry(entry)
+        record = {
+          user: entry.user,
+          type: entry.type,
+          pid: entry.pid,
+          line: entry.line,
+          host: entry.host
+        }
+        convert_values(parse_time(entry.time),record)
       end
     end
   end
