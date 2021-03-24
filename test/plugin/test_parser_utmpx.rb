@@ -11,13 +11,13 @@ class UtmpxParserTest < Test::Unit::TestCase
 
   sub_test_case "configure" do
     def test_missing_parser
-      assert_raise(Fluent::ConfigError) do
+      assert_raise Fluent::ConfigError.new("<parse> section is required.") do
         create_driver(CONFIG)
       end
     end
 
     def test_unknown_parser
-      assert_raise(Fluent::ConfigError) do
+      assert_raise Fluent::ConfigError.new("Unknown parser plugin 'unknown'. Run 'gem search -rd fluent-plugin' to find plugins") do
         create_driver(utmpx_config_element("", "unknown"))
       end
     end
