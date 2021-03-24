@@ -1,5 +1,5 @@
 require "helper"
-require "fluent/plugin/parser_utmpx.rb"
+require "fluent/plugin/parser_utmpx"
 
 class UtmpxParserTest < Test::Unit::TestCase
   setup do
