@@ -5,9 +5,17 @@ require "fluent/plugin/parser_utmpx"
 class UtmpxParserTest < Test::Unit::TestCase
   setup do
     Fluent::Test.setup
+    cleanup_directory(TMP_DIR)
+  end
+
+  teardown do
+    cleanup_directory(TMP_DIR)
+    Fluent::Engine.stop
   end
 
   CONFIG = config_element('ROOT')
+
+  TMP_DIR = File.dirname(__FILE__) + "/../tmp/tail#{ENV['TEST_ENV_NUMBER']}"
 
   sub_test_case "configure" do
     def test_missing_parser
@@ -47,5 +55,21 @@ class UtmpxParserTest < Test::Unit::TestCase
 
   def create_driver(conf)
     Fluent::Test::Driver::Input.new(Fluent::Plugin::TailInput).configure(conf)
+  end
+
+  def cleanup_directory(path)
+    unless Dir.exist?(path)
+      FileUtils.mkdir_p(path)
+      return
+    end
+    begin
+      FileUtils.rm_f(path, secure:true)
+    rescue ArgumentError
+      FileUtils.rm_f(path) # For Ruby 2.6 or before.
+    end
+    if File.exist?(path)
+      FileUtils.remove_entry_secure(path, true)
+    end
+    FileUtils.mkdir_p(path)
   end
 end
