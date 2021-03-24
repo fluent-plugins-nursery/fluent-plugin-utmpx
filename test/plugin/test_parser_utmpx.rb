@@ -31,7 +31,29 @@ class UtmpxParserTest < Test::Unit::TestCase
     end
   end
 
-  sub_test_case "parse wtmp,utmp" do
+  sub_test_case "parser driver" do
+    def test_parser_type
+      d = create_parser(utmpx_parser_config)
+      assert_equal(:binary, d.instance.parser_type)
+    end
+
+    def test_parse
+      d = create_parser(utmpx_parser_config)
+      data = File.read(dump_fixture_path("alice_login"))
+      d.instance.parse(data) do |time,record|
+        # TODO: time
+        expected = {
+          type: :USER_PROCESS,
+          user: "alice",
+          pid: 121110,
+          line: "tty7",
+          host: ":0"
+        }
+        assert_equal(expected, record)
+      end
+    end
+  end
+
     def test_empty_record
       Tempfile.create do |f|
         d = create_driver(utmpx_config_element(f.path))
