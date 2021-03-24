@@ -54,15 +54,6 @@ class UtmpxParserTest < Test::Unit::TestCase
     end
   end
 
-    def test_empty_record
-      Tempfile.create do |f|
-        d = create_driver(utmpx_config_element(f.path))
-        d.run
-        assert_equal(0, d.events.size)
-      end
-    end
-  end
-
   private
 
   def wtmp_path
