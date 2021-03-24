@@ -53,6 +53,10 @@ class UtmpxParserTest < Test::Unit::TestCase
                             ])
   end
 
+  def create_parser(conf)
+    Fluent::Test::Driver::Parser.new(Fluent::Plugin::UtmpxParser).configure(conf)
+  end
+
   def create_driver(conf)
     Fluent::Test::Driver::Input.new(Fluent::Plugin::TailInput).configure(conf)
   end
