@@ -30,8 +30,8 @@ module Fluent
         :binary
       end
 
-        obj = BinData::DelayedIO.new(type: UtmpxParser)
       def parse(data, &block)
+        obj = BinData::DelayedIO.new(type: UtmpxParser, read_abs_offset: 0)
         obj.read(data) do
           entry = obj.read_now!
           time, record = parse_entry(entry)
