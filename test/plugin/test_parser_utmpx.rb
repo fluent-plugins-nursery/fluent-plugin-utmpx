@@ -23,6 +23,16 @@ class UtmpxParserTest < Test::Unit::TestCase
     end
   end
 
+  sub_test_case "parse wtmp,utmp" do
+    def test_empty_record
+      Tempfile.create do |f|
+        d = create_driver(utmpx_config_element(f.path))
+        d.run
+        assert_equal(0, d.events.size)
+      end
+    end
+  end
+
   private
 
   def utmpx_config_element(path = "", parser = "utmpx")
