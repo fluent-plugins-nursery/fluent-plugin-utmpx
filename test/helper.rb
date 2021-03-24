@@ -8,3 +8,9 @@ require "linux/utmpx"
 
 Test::Unit::TestCase.include(Fluent::Test::Helpers)
 Test::Unit::TestCase.extend(Fluent::Test::Helpers)
+
+def dump_fixture_path(name)
+  File.join(File.dirname(__FILE__),
+            "fixtures",
+            "#{name}.dump")
+end
