@@ -43,6 +43,23 @@ class UtmpxParserTest < Test::Unit::TestCase
 
   private
 
+  def wtmp_path
+    File.join(TMP_DIR, "wtmp")
+  end
+
+  def create_wtmp(path = "#{TMP_DIR}/wtmp")
+    File.open(path, "wb") do |io|
+      utmpx = Linux::Utmpx::UtmpxParser.new(
+        type: Linux::Utmpx::Type::LOGIN_PROCESS
+      )
+      utmpx.write(io)
+    end
+  end
+
+  def utmpx_parser_config(path = "", parser = "utmpx")
+    CONFIG + config_element("", "", { "@type" => parser })
+  end
+
   def utmpx_config_element(path = "", parser = "utmpx")
     CONFIG + config_element("", "", { "@type" => "tail",
                                       "path" => path,
