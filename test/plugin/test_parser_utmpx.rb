@@ -1,4 +1,5 @@
 require "helper"
+require "fluent/plugin/in_tail"
 require "fluent/plugin/parser_utmpx"
 
 class UtmpxParserTest < Test::Unit::TestCase
@@ -34,6 +35,6 @@ class UtmpxParserTest < Test::Unit::TestCase
   end
 
   def create_driver(conf)
-    Fluent::Test::Driver::Parser.new(Fluent::Plugin::UtmpxParser).configure(conf)
+    Fluent::Test::Driver::Input.new(Fluent::Plugin::TailInput).configure(conf)
   end
 end
