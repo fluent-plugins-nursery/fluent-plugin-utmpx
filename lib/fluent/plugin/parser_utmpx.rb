@@ -14,6 +14,7 @@
 # limitations under the License.
 
 require "fluent/plugin/parser"
+require "linux/utmpx"
 
 module Fluent
   module Plugin
@@ -22,6 +23,15 @@ module Fluent
 
       def configure(conf)
         super
+        parser_config = conf.elements("parse").first
+        unless parser_config
+          raise Fluent::ConfigError, "<parse> section is required."
+        end
+
+        unless parser_config["@type"] == "utmpx"
+          raise Fluent::ConfigError, "@type in parser config section must be utmpx."
+        end
+
         @utmpx_parser = Linux::Utmpx::UtmpxParser.new
       end
 
