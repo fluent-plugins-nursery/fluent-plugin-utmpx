@@ -32,10 +32,12 @@ module Fluent
 
       def parse(data, &block)
         obj = BinData::DelayedIO.new(type: UtmpxParser, read_abs_offset: 0)
-        obj.read(data) do
-          obj.read_now!
-          time, record = parse_entry(obj)
-          yield time, record
+        (data.size / obj.num_bytes).times.each do |i|
+          obj.read(data.byteslice(i * obj.num_bytes, obj.num_bytes)) do
+            obj.read_now!
+            time, record = parse_entry(obj)
+            yield time, record
+          end
         end
       end
 
