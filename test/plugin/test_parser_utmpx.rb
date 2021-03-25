@@ -76,7 +76,8 @@ class UtmpxParserTest < Test::Unit::TestCase
   def utmpx_config_element(path = "", parser = "utmpx")
     CONFIG + config_element("", "", { "@type" => "tail",
                                       "path" => path,
-                                      "tag" => "utmpx" }, [
+                                      "tag" => "utmpx",
+                                      "read_from_head" => "true"}, [
                               config_element("parse", "", {
                                                "@type" => parser
                                              })
