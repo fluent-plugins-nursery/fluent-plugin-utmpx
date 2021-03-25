@@ -54,6 +54,31 @@ class UtmpxParserTest < Test::Unit::TestCase
     end
   end
 
+  sub_test_case "parse with input driver" do
+    def test_empty_record
+      Tempfile.create do |f|
+        d = create_driver(utmpx_config_element(f.path))
+        d.run
+        assert_equal(0, d.events.size)
+      end
+    end
+
+    def test_one_record
+      create_wtmp
+      d = create_driver(utmpx_config_element(wtmp_path))
+      d.run do
+        File.open(wtmp_path, "ab") do |io|
+          utmpx = Linux::Utmpx::UtmpxParser.new(
+            type: Linux::Utmpx::Type::LOGIN_PROCESS,
+            user: "bob"
+          )
+          utmpx.write(io)
+        end
+      end
+      assert_equal(1, d.events.size)
+    end
+  end
+
   private
 
   def wtmp_path
