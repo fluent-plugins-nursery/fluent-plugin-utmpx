@@ -55,7 +55,7 @@ module Fluent
         record = {
           user: entry.user,
           type: entry.type,
-          pid: entry.pid,
+          pid: entry.pid.to_i,
           line: entry.line,
           host: entry.host
         }
