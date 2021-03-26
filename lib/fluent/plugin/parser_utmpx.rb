@@ -24,20 +24,28 @@ module Fluent
       def configure(conf)
         super
         @utmpx_parser = Linux::Utmpx::UtmpxParser.new
+        @buffer = ""
       end
 
       def parser_type
         :binary
       end
 
-      def parse(data, &block)
+      def parse(data)
         obj = BinData::DelayedIO.new(type: UtmpxParser, read_abs_offset: 0)
-        (data.size / obj.num_bytes).times.each do |i|
-          obj.read(data.byteslice(i * obj.num_bytes, obj.num_bytes)) do
+        @buffer << data
+        count = @buffer.size / obj.num_bytes
+        count.times.each do |i|
+          obj.read(@buffer.byteslice(i * obj.num_bytes, obj.num_bytes)) do
             obj.read_now!
             time, record = parse_entry(obj)
             yield time, record
           end
+        end
+        if (@buffer.size % obj.num_bytes) > 0
+          @buffer = @buffer.byteslice(count * obj.num_bytes, @buffer.size % obj.num_bytes)
+        else
+          @buffer = ""
         end
       end
 
