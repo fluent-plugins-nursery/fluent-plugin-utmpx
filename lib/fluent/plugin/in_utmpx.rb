@@ -14,8 +14,11 @@
 # limitations under the License.
 
 require "fluent/plugin/input"
-require "fluent/plugin/parser"
+require "fluent/plugin/in_tail/position_file"
+require 'fluent/variable_store'
 require "linux/utmpx"
+
+Fluent::FileWrapper = File
 
 module Fluent
   module Plugin
@@ -30,32 +33,57 @@ module Fluent
       config_param :tag, :string
       desc "Interval to check wtmp/utmp (N seconds)"
       config_param :interval, :integer, default: 10
+      desc "Record the position it last read into this file"
+      config_param :pos_file, :string
 
       def configure(conf)
+        @variable_store = Fluent::VariableStore.fetch_or_build(:in_utmpx)
         super
         @utmpx = Linux::Utmpx::UtmpxParser.new
         @buffer = ""
         @tail_position = 0
         @previous_position = 0
+
+        if @variable_store.key?(@pos_file) && !called_in_test?
+          plugin_id_using_this_path = @variable_store[@pos_file]
+          raise Fluent::ConfigError, "Other 'in_utmpx' plugin already use same pos_file path: plugin_id = #{plugin_id_using_this_path}, pos_file path = #{@pos_file}"
+        end
+        @variable_store[@pos_file] = self.plugin_id
       end
 
       def start
         super
 
-        timer_execute(:execute_utmpx, @interval) do
-          @tail_position = File.stat(@path).size
-          File.open(@path) do |io|
-            io.seek(@previous_position)
-            count = (@tail_position - @previous_position) / @utmpx.num_bytes
-            es = MultiEventStream.new
-            count.times do |n|
-              time, record = parse_entry(@utmpx.read(io))
-              es.add(time,record)
-            end
-            @previous_position += count * @utmpx.num_bytes
-            router.emit_stream(@tag, es)
+        pos_file_dir = File.dirname(@pos_file)
+        FileUtils.mkdir_p(pos_file_dir, mode: Fluent::DEFAULT_DIR_PERMISSION) unless Dir.exist?(pos_file_dir)
+        @pf_file = File.open(@pos_file, File::RDWR|File::CREAT|File::BINARY, Fluent::DEFAULT_FILE_PERMISSION)
+        @pf_file.sync = true
+        target_info = TailInput::TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)
+        @pf = TailInput::PositionFile.load(@pf_file, false, {target_info.path => target_info}, logger: log)
+
+        timer_execute(:execute_utmpx, @interval, &method(:refresh_watchers))
+      end
+
+      def refresh_watchers
+        @tail_position = Fluent::FileWrapper.stat(@path).size
+        @pe = @pf[TailInput::TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)]
+        return if (@tail_position - @pe.read_pos) == 0
+
+        count = (@tail_position - @pe.read_pos) / @utmpx.num_bytes
+        es = MultiEventStream.new
+        File.open(@path) do |io|
+          io.seek(@pe.read_pos)
+          count.times do |n|
+            time, record = parse_entry(@utmpx.read(io))
+            es.add(time,record)
           end
+          @pe.update_pos(@pe.read_pos + count * @utmpx.num_bytes)
+          router.emit_stream(@tag, es)
         end
+      end
+
+      def shutdown
+        @pf_file.close if @pf_file
       end
 
       def multi_workers_ready?
