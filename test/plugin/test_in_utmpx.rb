@@ -96,7 +96,7 @@ class UtmpxInputTest < Test::Unit::TestCase
         @pe = @pf[target_info]
         @pe.update_pos(@tail_position)
       end
-      d = create_driver(utmpx_config)
+      d = create_driver(utmpx_config(wtmp_path))
       d.run(expect_emits: 1) do
         File.open(wtmp_path, "ab") do |io|
           utmpx = Linux::Utmpx::UtmpxParser.new(
