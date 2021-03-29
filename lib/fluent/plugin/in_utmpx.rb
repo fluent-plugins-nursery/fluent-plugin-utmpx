@@ -34,7 +34,7 @@ module Fluent
       desc "Interval to check wtmp/utmp (N seconds)"
       config_param :interval, :integer, default: 10
       desc "Record the position it last read into this file"
-      config_param :pos_file, :string, default: nil
+      config_param :pos_file, :string
 
       def configure(conf)
         @variable_store = Fluent::VariableStore.fetch_or_build(:in_utmpx)
@@ -44,29 +44,22 @@ module Fluent
         @tail_position = 0
         @previous_position = 0
 
-        if @pos_file
-          if @variable_store.key?(@pos_file) && !called_in_test?
-            plugin_id_using_this_path = @variable_store[@pos_file]
-            raise Fluent::ConfigError, "Other 'in_utmpx' plugin already use same pos_file path: plugin_id = #{plugin_id_using_this_path}, pos_file path = #{@pos_file}"
-          end
-          @variable_store[@pos_file] = self.plugin_id
-        else
-          $log.warn "'pos_file PATH' parameter is not set to a 'utmpx' source."
-          $log.warn "this parameter is highly recommended to save the position to resume tailing."
+        if @variable_store.key?(@pos_file) && !called_in_test?
+          plugin_id_using_this_path = @variable_store[@pos_file]
+          raise Fluent::ConfigError, "Other 'in_utmpx' plugin already use same pos_file path: plugin_id = #{plugin_id_using_this_path}, pos_file path = #{@pos_file}"
         end
+        @variable_store[@pos_file] = self.plugin_id
       end
 
       def start
         super
 
-        if @pos_file
-          pos_file_dir = File.dirname(@pos_file)
-          FileUtils.mkdir_p(pos_file_dir, mode: Fluent::DEFAULT_DIR_PERMISSION) unless Dir.exist?(pos_file_dir)
-          @pf_file = File.open(@pos_file, File::RDWR|File::CREAT|File::BINARY, Fluent::DEFAULT_FILE_PERMISSION)
-          @pf_file.sync = true
-          target_info = TailInput::TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)
-          @pf = TailInput::PositionFile.load(@pf_file, false, {target_info.path => target_info}, logger: log)
-        end
+        pos_file_dir = File.dirname(@pos_file)
+        FileUtils.mkdir_p(pos_file_dir, mode: Fluent::DEFAULT_DIR_PERMISSION) unless Dir.exist?(pos_file_dir)
+        @pf_file = File.open(@pos_file, File::RDWR|File::CREAT|File::BINARY, Fluent::DEFAULT_FILE_PERMISSION)
+        @pf_file.sync = true
+        target_info = TailInput::TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)
+        @pf = TailInput::PositionFile.load(@pf_file, false, {target_info.path => target_info}, logger: log)
 
         timer_execute(:execute_utmpx, @interval, &method(:refresh_watchers))
       end
