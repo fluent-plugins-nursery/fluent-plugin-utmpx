@@ -90,13 +90,7 @@ class UtmpxInputTest < Test::Unit::TestCase
       end
       d = create_driver(utmpx_config(wtmp_path))
       d.run(expect_emits: 1) do
-        File.open(wtmp_path, "ab") do |io|
-          utmpx = Linux::Utmpx::UtmpxParser.new(
-            type: Linux::Utmpx::Type::LOGIN_PROCESS,
-            user: "alice"
-          )
-          utmpx.write(io)
-        end
+        append_utmpx
       end
       assert_equal(1, d.events.size)
     end
