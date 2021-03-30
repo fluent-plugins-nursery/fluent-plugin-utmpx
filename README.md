@@ -28,23 +28,12 @@ $ bundle
 
 ## Fluent::Plugin::UtmpxInput
 
-### path (string) (required)
-
-Path to wtmp,utmp
-
-### tag (string) (required)
-
-Tag string
-
-### interval (integer) (optional)
-
-Interval to check wtmp/utmp (N seconds)
-
-Default value: `10`.
-
-### pos_file (string) (required)
-
-Record the position it last read into this file
+| parameter | type               | description                                     | default |
+|-----------|--------------------|-------------------------------------------------|---------|
+| path      | string (required)  | Path to wtmp,utmp                               |         |
+| tag       | string (required)  | Tag string                                      |         |
+| interval  | integer (optional) | Interval to check wtmp/utmp (N seconds)         | `10`    |
+| pos_file  | string (required)  | Record the position it last read into this file |         |
 
 ## Usage
 
