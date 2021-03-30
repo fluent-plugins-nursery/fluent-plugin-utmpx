@@ -31,7 +31,7 @@ module Fluent
       config_param :path, :string
       desc "Tag string"
       config_param :tag, :string
-      desc "Interval to check wtmp/utmp (N seconds)"
+      desc "Interval to check `path` (N seconds)"
       config_param :interval, :integer, default: 10
       desc "Record the position it last read into this file"
       config_param :pos_file, :string
