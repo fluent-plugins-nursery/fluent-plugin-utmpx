@@ -2,6 +2,8 @@
 
 [Fluentd](https://fluentd.org/) input plugin to extract `/var/log/wtmp` or `/var/run/utmp`.
 
+This plugin uses [linux-utmpx](https://github.com/fluent-plugins-nursery/linux-utmpx) to parse above files.
+
 ## Installation
 
 ### RubyGems
