@@ -31,11 +31,19 @@ class UtmpxInputTest < Test::Unit::TestCase
       end
     end
 
+    def test_missing_pos_file
+      assert_raise Fluent::ConfigError.new("'pos_file' parameter is required") do
+        create_driver(CONFIG + config_element("", "", { "path" => "/var/log/wtmp",
+                                                        "tag" => "wtmp" }))
+      end
+    end
+
     def test_default_parameters
       d = create_driver(utmpx_config)
       assert_equal("", d.instance.path)
       assert_equal("utmpx", d.instance.tag)
       assert_equal(10, d.instance.interval)
+      assert_equal(utmpx_pos_path, d.instance.pos_file)
     end
   end
 
