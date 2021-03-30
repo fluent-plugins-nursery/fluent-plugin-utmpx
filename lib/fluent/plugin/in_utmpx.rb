@@ -94,11 +94,11 @@ module Fluent
 
       def parse_entry(entry)
         record = {
-          user: entry.user,
-          type: entry.type,
+          user: entry.user.dup,
+          type: entry.type.dup,
           pid: entry.pid.to_i,
-          line: entry.line,
-          host: entry.host
+          line: entry.line.dup,
+          host: entry.host.dup
         }
         [entry.time, record]
       end
