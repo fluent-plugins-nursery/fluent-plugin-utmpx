@@ -78,7 +78,9 @@ class UtmpxInputTest < Test::Unit::TestCase
       end
       assert_equal(2, d.events.size)
     end
+  end
 
+  sub_test_case "pos_file use cases" do
     def test_pos_file
       create_wtmp
       @tail_position = Fluent::FileWrapper.stat(wtmp_path).size
@@ -93,6 +95,33 @@ class UtmpxInputTest < Test::Unit::TestCase
         append_utmpx
       end
       assert_equal(1, d.events.size)
+    end
+
+    def test_truncated
+      create_wtmp
+      10.times do
+        append_utmpx
+      end
+      @tail_position = Fluent::FileWrapper.stat(wtmp_path).size
+      File.open(utmpx_pos_path, "w+") do |file|
+        target_info = Fluent::Plugin::TailInput::TargetInfo.new(wtmp_path, Fluent::FileWrapper.stat(wtmp_path).ino)
+        @pf = Fluent::Plugin::TailInput::PositionFile.new(file, false, {wtmp_path => target_info}, logger: nil)
+        @pe = @pf[target_info]
+        @pe.update_pos(@tail_position)
+      end
+      File.open(wtmp_path, "w+") do |file|
+        file.truncate(0)
+      end
+      d = create_driver(utmpx_config(wtmp_path))
+      d.run(expect_emits: 1) do
+        append_utmpx(user: "bob")
+        append_utmpx(user: "carol")
+      end
+      who = d.events.collect do |event|
+        event.last[:user]
+      end
+      assert_equal(["bob", "carol"], who)
+      assert_equal(2, d.events.size)
     end
   end
 

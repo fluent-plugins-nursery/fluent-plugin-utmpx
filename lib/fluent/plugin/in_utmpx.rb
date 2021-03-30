@@ -69,6 +69,13 @@ module Fluent
         @pe = @pf[TailInput::TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)]
         return if (@tail_position - @pe.read_pos) == 0
 
+        if (@tail_position - @pe.read_pos) < 0
+          # may be truncated, read from head
+          @pe.update_pos(0)
+          log.warn("#{@path} may be truncated")
+          return
+        end
+
         count = (@tail_position - @pe.read_pos) / @utmpx.num_bytes
         es = MultiEventStream.new
         File.open(@path) do |io|
