@@ -37,6 +37,17 @@ $ bundle
 | interval  | integer (optional) | Interval to check `path` (N seconds)    | `10`    |
 | pos_file  | string (required)  | Record the position it last read into this file |         |
 
+
+The extracted record contains:
+
+| field | type   | description       |
+|-------|--------|-------------------|
+| type  | string | Type of login. It must be either `EMPTY`, `RUN_LVL`, `BOOT_TIME`, `NEW_TIME`, `OLD_TIME`, `INIT_PROCESS`, `LOGIN_PROCESS`, `USER_PROCESS`, `DEAD_PROCESS` or `ACCOUNTING`. |
+| pid  | integer | Process ID |
+| line  | string | Device name (e.g. `pts/N`) |
+| user  | string | Username |
+| host  | string | Hostname for remote login |
+
 ## Usage
 
 Here is the example to use `utmpx` input plugin.
