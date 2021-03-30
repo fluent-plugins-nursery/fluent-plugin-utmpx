@@ -52,13 +52,7 @@ class UtmpxInputTest < Test::Unit::TestCase
       FileUtils.touch(wtmp_path)
       d = create_driver(utmpx_config(wtmp_path))
       d.run(expect_emits: 1) do
-        File.open(wtmp_path, "ab") do |io|
-          utmpx = Linux::Utmpx::UtmpxParser.new(
-            type: Linux::Utmpx::Type::LOGIN_PROCESS,
-            user: "alice"
-          )
-          utmpx.write(io)
-        end
+        append_utmpx
       end
       assert_equal(1, d.events.size)
     end
@@ -68,12 +62,8 @@ class UtmpxInputTest < Test::Unit::TestCase
       d = create_driver(utmpx_config(wtmp_path))
       d.run(expect_emits: 1) do
         File.open(wtmp_path, "ab") do |io|
-          utmpx = Linux::Utmpx::UtmpxParser.new(
-            type: Linux::Utmpx::Type::LOGIN_PROCESS,
-            user: "alice"
-          )
           3.times do
-            utmpx.write(io)
+            append_utmpx
           end
         end
       end
@@ -84,13 +74,7 @@ class UtmpxInputTest < Test::Unit::TestCase
       create_wtmp
       d = create_driver(utmpx_config(wtmp_path))
       d.run(expect_emits: 1) do
-        File.open(wtmp_path, "ab") do |io|
-          utmpx = Linux::Utmpx::UtmpxParser.new(
-            type: Linux::Utmpx::Type::LOGIN_PROCESS,
-            user: "alice"
-          )
-          utmpx.write(io)
-        end
+        append_utmpx
       end
       assert_equal(2, d.events.size)
     end
@@ -131,7 +115,11 @@ class UtmpxInputTest < Test::Unit::TestCase
   def create_wtmp(path = "#{TMP_DIR}/wtmp")
     File.open(path, "wb") do |io|
       utmpx = Linux::Utmpx::UtmpxParser.new(
-        type: Linux::Utmpx::Type::LOGIN_PROCESS
+        ut_type: Linux::Utmpx::Type::LOGIN_PROCESS,
+        ut_user: "alice",
+        ut_pid: 10000,
+        ut_line: "pts/1",
+        ut_host: "localhost"
       )
       utmpx.write(io)
     end
@@ -142,6 +130,19 @@ class UtmpxInputTest < Test::Unit::TestCase
                                       "path" => path,
                                       "tag" => tag,
                                       "pos_file" => pos_file })
+  end
+
+  def append_utmpx(path: wtmp_path, type: Linux::Utmpx::Type::LOGIN_PROCESS, user: "alice", host: "localhost", line: "pts/1", pid: 10000)
+    File.open(path, "ab") do |io|
+      utmpx = Linux::Utmpx::UtmpxParser.new(
+        ut_type: type,
+        ut_user: user,
+        ut_pid: pid,
+        ut_line: line,
+        ut_host: host
+      )
+      utmpx.write(io)
+    end
   end
 
   def create_driver(conf)
