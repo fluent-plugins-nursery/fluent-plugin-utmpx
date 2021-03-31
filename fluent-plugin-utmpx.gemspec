@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = test_files
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency "linux-utmpx", "~> 0.2.0"
+  spec.add_runtime_dependency "linux-utmpx", "~> 0.3.0"
   spec.add_runtime_dependency "fluentd", [">= 0.14.10", "< 2"]
 
   spec.add_development_dependency "bundler", "~> 2.2.15"
