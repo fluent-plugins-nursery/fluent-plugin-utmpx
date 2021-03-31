@@ -93,10 +93,6 @@ module Fluent
         @pf_file.close if @pf_file
       end
 
-      def multi_workers_ready?
-        false
-      end
-
       private
 
       def parse_entry(entry)
