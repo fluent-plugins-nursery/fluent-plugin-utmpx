@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 0.4.0 (2021-03-31)
+
+* Update to latest linux-utmpx 0.3.0
+  This fixes the problem that unexpected TypeError is raised
+
 ## 0.3.0 (2021-03-30)
 
 * Fixed a bug that the content of previous event is discarded
