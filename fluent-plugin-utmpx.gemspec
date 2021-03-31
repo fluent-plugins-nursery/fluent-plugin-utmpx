@@ -7,8 +7,8 @@ Gem::Specification.new do |spec|
   spec.authors = ["Kentaro Hayashi"]
   spec.email   = ["kenhys@gmail.com"]
 
-  spec.summary       = %q{Fluentd Parser plugin to parse login records}
-  spec.description   = %q{Fluentd Parser plugin to parse /var/log/wtmp,/var/run/utmp}
+  spec.summary       = %q{Fluentd Input plugin to parse login records}
+  spec.description   = %q{Fluentd Input plugin to parse /var/log/wtmp,/var/run/utmp}
   spec.homepage      = "https://github.com/fluent-plugins-nursery/fluent-plugin-utmpx"
   spec.license       = "Apache-2.0"
 
