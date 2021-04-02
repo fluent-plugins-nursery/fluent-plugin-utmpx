@@ -22,6 +22,9 @@ Fluent::FileWrapper = File
 
 module Fluent
   module Plugin
+
+    TargetInfo = Struct.new(:path, :ino)
+
     class UtmpxInput < Fluent::Plugin::Input
       Fluent::Plugin.register_input("utmpx", self)
 
@@ -58,7 +61,7 @@ module Fluent
         FileUtils.mkdir_p(pos_file_dir, mode: Fluent::DEFAULT_DIR_PERMISSION) unless Dir.exist?(pos_file_dir)
         @pf_file = File.open(@pos_file, File::RDWR|File::CREAT|File::BINARY, Fluent::DEFAULT_FILE_PERMISSION)
         @pf_file.sync = true
-        target_info = TailInput::TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)
+        target_info = TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)
         @pf = TailInput::PositionFile.load(@pf_file, false, {target_info.path => target_info}, logger: log)
 
         timer_execute(:execute_utmpx, @interval, &method(:refresh_watchers))
@@ -66,7 +69,7 @@ module Fluent
 
       def refresh_watchers
         @tail_position = Fluent::FileWrapper.stat(@path).size
-        @pe = @pf[TailInput::TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)]
+        @pe = @pf[TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)]
         return if (@tail_position - @pe.read_pos) == 0
 
         if (@tail_position - @pe.read_pos) < 0
