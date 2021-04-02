@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.5.0 (2021-04-02)
+
+* Changed to keep compatibility with Fluentd 1.11 [GitHub#3] [GitHub#4]
+
 ## 0.4.0 (2021-03-31)
 
 * Update to latest linux-utmpx 0.3.0
