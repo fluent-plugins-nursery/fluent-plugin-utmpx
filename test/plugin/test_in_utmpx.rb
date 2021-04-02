@@ -85,8 +85,12 @@ class UtmpxInputTest < Test::Unit::TestCase
       create_wtmp
       @tail_position = Fluent::FileWrapper.stat(wtmp_path).size
       File.open(utmpx_pos_path, "w+") do |file|
-        target_info = Fluent::Plugin::TailInput::TargetInfo.new(wtmp_path, Fluent::FileWrapper.stat(wtmp_path).ino)
-        @pf = Fluent::Plugin::TailInput::PositionFile.new(file, false, {wtmp_path => target_info}, logger: nil)
+        target_info = Fluent::Plugin::TargetInfo.new(wtmp_path, Fluent::FileWrapper.stat(wtmp_path).ino)
+        if Gem::Version.new(Fluent::VERSION) < Gem::Version.new("1.12.0")
+          @pf = Fluent::Plugin::TailInput::PositionFile.new(file, logger: nil)
+        els
+          @pf = Fluent::Plugin::TailInput::PositionFile.new(file, false, {wtmp_path => target_info}, logger: nil)
+        end
         @pe = @pf[target_info]
         @pe.update_pos(@tail_position)
       end
@@ -104,8 +108,12 @@ class UtmpxInputTest < Test::Unit::TestCase
       end
       @tail_position = Fluent::FileWrapper.stat(wtmp_path).size
       File.open(utmpx_pos_path, "w+") do |file|
-        target_info = Fluent::Plugin::TailInput::TargetInfo.new(wtmp_path, Fluent::FileWrapper.stat(wtmp_path).ino)
-        @pf = Fluent::Plugin::TailInput::PositionFile.new(file, false, {wtmp_path => target_info}, logger: nil)
+        target_info = Fluent::Plugin::TargetInfo.new(wtmp_path, Fluent::FileWrapper.stat(wtmp_path).ino)
+        if Gem::Version.new(Fluent::VERSION) < Gem::Version.new("1.12.0")
+          @pf = Fluent::Plugin::TailInput::PositionFile.new(file, logger: nil)
+        else
+          @pf = Fluent::Plugin::TailInput::PositionFile.new(file, false, {wtmp_path => target_info}, logger: nil)
+        end
         @pe = @pf[target_info]
         @pe.update_pos(@tail_position)
       end
