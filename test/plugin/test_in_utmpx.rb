@@ -88,7 +88,7 @@ class UtmpxInputTest < Test::Unit::TestCase
         target_info = Fluent::Plugin::TargetInfo.new(wtmp_path, Fluent::FileWrapper.stat(wtmp_path).ino)
         if Gem::Version.new(Fluent::VERSION) < Gem::Version.new("1.12.0")
           @pf = Fluent::Plugin::TailInput::PositionFile.new(file, logger: nil)
-        els
+        else
           @pf = Fluent::Plugin::TailInput::PositionFile.new(file, false, {wtmp_path => target_info}, logger: nil)
         end
         @pe = @pf[target_info]
