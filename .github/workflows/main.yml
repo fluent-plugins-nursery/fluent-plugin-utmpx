@@ -20,6 +20,7 @@ jobs:
     - name: Run the default task
       run: |
         gem install fluentd -v ${{ matrix.fluentd }}
+        gem install rake -v 12.0
         rake build
         gem install ./pkg/fluent-plugin-utmpx*.gem
         TESTOPTS="--verbose" bundle exec rake
