@@ -62,7 +62,11 @@ module Fluent
         @pf_file = File.open(@pos_file, File::RDWR|File::CREAT|File::BINARY, Fluent::DEFAULT_FILE_PERMISSION)
         @pf_file.sync = true
         target_info = TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)
-        @pf = TailInput::PositionFile.load(@pf_file, false, {target_info.path => target_info}, logger: log)
+        if Gem::Version.new(Fluent::VERSION) < Gem::Version.new("1.12.0")
+          @pf = TailInput::PositionFile.load(@pf_file, logger: log)
+        else
+          @pf = TailInput::PositionFile.load(@pf_file, false, {target_info.path => target_info}, logger: log)
+        end
 
         timer_execute(:execute_utmpx, @interval, &method(:refresh_watchers))
       end
