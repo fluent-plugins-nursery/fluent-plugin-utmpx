@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require "fluent/version"
 require "fluent/plugin/input"
 require "fluent/plugin/in_tail/position_file"
 require 'fluent/variable_store'
@@ -73,7 +74,11 @@ module Fluent
 
       def refresh_watchers
         @tail_position = Fluent::FileWrapper.stat(@path).size
-        @pe = @pf[TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)]
+        if Gem::Version.new(Fluent::VERSION) < Gem::Version.new("1.12.0")
+          @pe = @pf[@path]
+        else
+          @pe = @pf[TargetInfo.new(@path, Fluent::FileWrapper.stat(@path).ino)]
+        end
         return if (@tail_position - @pe.read_pos) == 0
 
         if (@tail_position - @pe.read_pos) < 0
