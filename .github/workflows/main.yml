@@ -10,7 +10,7 @@ jobs:
       matrix:
         ruby: [ '2.5', '2.6', '2.7', '3.0' ]
         fluentd: ['1.11.5', '1.12.2']
-    name: Ruby ${{ matrix.ruby }} unit testing on ubuntu-latest
+    name: Ruby ${{ matrix.ruby }} Fluentd ${{ matrix.fluentd }}
     steps:
     - uses: actions/checkout@v2
     - name: Set up Ruby
