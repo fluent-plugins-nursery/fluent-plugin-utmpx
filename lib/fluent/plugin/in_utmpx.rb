@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require "fluent/version"
 require "fluent/plugin/input"
 require "fluent/plugin/in_tail/position_file"
 require 'fluent/variable_store'
