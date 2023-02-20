@@ -3,7 +3,7 @@ name: Ruby
 on: [push,pull_request]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -11,14 +11,32 @@ jobs:
         ruby: [ '2.7', '3.0', '3.1', '3.2' ]
     name: Ruby ${{ matrix.ruby }}
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby }}
-        bundler-cache: true
-    - name: Run the default task
-      run: |
-        rake build
-        gem install ./pkg/fluent-plugin-utmpx*.gem
-        TESTOPTS="--verbose" bundle exec rake
+      - uses: actions/checkout@v3
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Run the default task
+        run: |
+          TESTOPTS="--verbose" bundle exec rake
+
+  gem:
+    runs-on: ubuntu-latest
+    name: Gem test
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+      - name: Install
+        run: |
+          rake install
+          gem install test-unit webrick
+      - name: Test
+        run: |
+          mkdir -p tmp
+          cd tmp
+          cp -a ../test/ ./
+          test/run.rb
