@@ -90,7 +90,7 @@ class UtmpxInputTest < Test::Unit::TestCase
           @pf = Fluent::Plugin::TailInput::PositionFile.new(file, logger: nil)
           @pe = @pf[wtmp_path]
         else
-          @pf = Fluent::Plugin::TailInput::PositionFile.new(file, false, {wtmp_path => target_info}, logger: nil)
+          @pf = Fluent::Plugin::TailInput::PositionFile.load(file, false, {wtmp_path => target_info}, logger: nil)
           @pe = @pf[target_info]
         end
         @pe.update_pos(@tail_position)
@@ -114,7 +114,7 @@ class UtmpxInputTest < Test::Unit::TestCase
           @pf = Fluent::Plugin::TailInput::PositionFile.new(file, logger: nil)
           @pe = @pf[wtmp_path]
         else
-          @pf = Fluent::Plugin::TailInput::PositionFile.new(file, false, {wtmp_path => target_info}, logger: nil)
+          @pf = Fluent::Plugin::TailInput::PositionFile.load(file, false, {wtmp_path => target_info}, logger: nil)
           @pe = @pf[target_info]
         end
         @pe.update_pos(@tail_position)
