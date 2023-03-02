@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_runtime_dependency "linux-utmpx", "~> 0.3.0"
-  spec.add_runtime_dependency "fluentd", [">= 0.14.10", "< 2"]
+  spec.add_runtime_dependency "fluentd", [">= 1.14.0", "< 2"]
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
